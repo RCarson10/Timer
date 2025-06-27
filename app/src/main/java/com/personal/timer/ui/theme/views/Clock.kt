@@ -12,7 +12,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,30 +22,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-
-// Global variable to store the selected time zone
-var selectedTimeZone: TimeZone = TimeZone.getDefault() // Default to the system's time zone
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.personal.timer.ui.theme.viewModel.ClockViewModel
 
 @Composable
-fun DisplayTextClock() {
-    // Declares a mutable state variable `currentTime` to store the current time.
-    // The state is remembered across recompositions and triggers UI updates when its value changes.
-    var currentTime by remember { mutableStateOf(getCurrentTime(selectedTimeZone)) }
-    // Mutable state to store the display name of the selected time zone
-    var displayTimezone by remember { mutableStateOf(selectedTimeZone.displayName) }
-
-    // LaunchedEffect to update the time and time zone display name every second
-    LaunchedEffect(Unit) {
-        while (true) {
-            currentTime = getCurrentTime(selectedTimeZone) // Update the current time
-            displayTimezone = selectedTimeZone.displayName // Update the time zone display name
-            delay(1000L) // 1 second
-        }
-    }
+fun Clock(
+    viewModel: ClockViewModel = ClockViewModel()
+) {
+    val currentTime by viewModel.currentTime.collectAsStateWithLifecycle()
+    val selectedTimeZone by viewModel.selectedTimeZone.collectAsStateWithLifecycle()
 
     // UI layout for displaying the clock
     Column(
@@ -56,7 +40,7 @@ fun DisplayTextClock() {
         verticalArrangement = Arrangement.Center
     ) {
         // Display the time zone name
-        Text("$displayTimezone Clock",
+        Text("${selectedTimeZone.id} Clock",
             fontWeight = FontWeight.Bold,
             color = Color.White,
             fontSize = 24.sp,
@@ -70,7 +54,7 @@ fun DisplayTextClock() {
         )
         // Dropdown menu for selecting a time zone
         TimeZoneDropdown { timeZoneId ->
-            selectedTimeZone = TimeZone.getTimeZone(timeZoneId) // Update the global time zone variable
+            viewModel.updateTimeZone(timeZoneId) // Use the ViewModel's method to update time zone
         }
     }
 }
@@ -110,11 +94,4 @@ fun TimeZoneDropdown(onTimeZoneSelected: (String) -> Unit) {
         // Dropdown menu to display the list of time zones
 
     }
-}
-
-// Helper function to get the current time and return it as a formatted string
-fun getCurrentTime(timeZone: TimeZone): String {
-    val dateFormat = SimpleDateFormat("hh:mm a", Locale.getDefault()) // Format for the time
-    dateFormat.timeZone = java.util.TimeZone.getTimeZone(timeZone.id) // Set the selected time zone
-    return dateFormat.format(Date()) // Return the formatted current time
 }

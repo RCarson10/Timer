@@ -6,8 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.personal.timer.ui.theme.Screens.ClockScreen
 import com.personal.timer.ui.theme.TimerTheme
-import com.personal.timer.ui.theme.views.DisplayTextClock
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TimerTheme {
-                DisplayTextClock()
+                ClockScreen()
             }
         }
     }
@@ -25,6 +25,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ClockPreview() {
     TimerTheme {
-        DisplayTextClock()
+        ClockScreen()
     }
 }
