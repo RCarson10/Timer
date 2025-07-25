@@ -1,22 +1,23 @@
 package com.personal.timer.ui.theme.viewModel;
 
+import android.app.AlarmManager;
+
 public class TimerViewModel {
-    // Add properties and methods for the TimerViewModel here
-    // This class will handle the logic for the timer functionality in the app
+    private AlarmManager alarmManager;
 
-    // Example property
-    private long timerDuration;
+    // Add methods to manage timers, alarms, and other related functionalities
+    // For example, startTimer(), stopTimer(), resetTimer(), etc.
 
-    // Example method to start the timer
     public void startTimer(long duration) {
-        this.timerDuration = duration;
-        // Logic to start the timer
+        // Logic to start a timer with the specified duration
+        alarmManager.setAlarmClock();
     }
 
-    // Example method to stop the timer
     public void stopTimer() {
-        // Logic to stop the timer
+        // Logic to stop the currently running timer
     }
 
-    // Additional methods and properties can be added as needed
+    public void resetTimer() {
+        // Logic to reset the timer to its initial state
+    }
 }

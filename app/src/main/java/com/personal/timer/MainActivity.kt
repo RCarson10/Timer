@@ -16,16 +16,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TimerTheme {
-              //  ClockScreen()
+                ClockScreen()
                 TimerScreen()
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ClockPreview() {
-    TimerTheme {
-ClockScreen()    }
 }

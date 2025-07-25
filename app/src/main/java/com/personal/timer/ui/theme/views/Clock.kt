@@ -4,10 +4,13 @@ import android.icu.util.TimeZone
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
@@ -20,14 +23,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.personal.timer.ui.theme.Screens.ClockScreen
+import com.personal.timer.ui.theme.TimerTheme
 import com.personal.timer.ui.theme.viewModel.ClockViewModel
 
 @Composable
 fun Clock(
-    viewModel: ClockViewModel = ClockViewModel()
+    viewModel: ClockViewModel = ClockViewModel(),
+    onNavigateToTimer: () -> Unit = {}
 ) {
     val currentTime by viewModel.currentTime.collectAsStateWithLifecycle()
     val selectedTimeZone by viewModel.selectedTimeZone.collectAsStateWithLifecycle()
@@ -55,6 +62,18 @@ fun Clock(
         // Dropdown menu for selecting a time zone
         TimeZoneDropdown { timeZoneId ->
             viewModel.updateTimeZone(timeZoneId) // Use the ViewModel's method to update time zone
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Navigation Button
+        Button(
+            onClick = onNavigateToTimer,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp)
+        ) {
+            Text("Go to Timer")
         }
     }
 }
@@ -91,7 +110,13 @@ fun TimeZoneDropdown(onTimeZoneSelected: (String) -> Unit) {
                 }
             }
         }
-        // Dropdown menu to display the list of time zones
+    }
+}
 
+@Preview(showBackground = true)
+@Composable
+fun ClockPreview() {
+    TimerTheme {
+        Clock()
     }
 }
