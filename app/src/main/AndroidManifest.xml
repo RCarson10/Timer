@@ -19,6 +19,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Timer"
         tools:targetApi="31">
+        
+        <!-- TODO: Register TimerReceiver -->
+        <receiver
+            android:name=".TimerReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.personal.timer.TIMER_COMPLETE" />
+            </intent-filter>
+        </receiver>
+        
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -32,6 +42,5 @@
         </activity>
 
     </application>
-
 
 </manifest>
