@@ -1,39 +1,54 @@
 package com.personal.timer.ui.theme.viewModel
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.os.Build
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+
+enum class TimerState {
+    RUNNING,
+    PAUSED,
+    STOPPED,
+    COMPLETED
+}
 
 class TimerViewModel : ViewModel() {
+    private val _timerState = MutableStateFlow(TimerState.STOPPED)
+    private val _remainingTime = MutableStateFlow(0L)
+    val timerState: StateFlow<TimerState> = _timerState.asStateFlow()
+    val remainingTime: StateFlow<Long> = _remainingTime.asStateFlow()
 
-    private lateinit var alarmManager: AlarmManager
 
-    fun init(alarmManager: AlarmManager) {
-        this.alarmManager = alarmManager
+    fun startTimer(duration: Long) {
+        _remainingTime.value = duration
+        _timerState.value = TimerState.RUNNING
     }
 
-    fun startTimer(hours: Int, minutes: Int, seconds: Int, pendingIntent: PendingIntent) {
-        val alarmInformation = AlarmManager.AlarmClockInfo(
-            System.currentTimeMillis() + (hours * 3600000) + (minutes * 60000) + (seconds * 1000),
-            git pendingIntent)
-
-
-
-        // System-level timer (works when app is backgrounded)
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            alarmInformation.triggerTime,
-            alarmInformation.showIntent
-        )
+    fun stopTimer() {
+        _timerState.value = TimerState.STOPPED
+        _remainingTime.value = 0L
     }
-    private fun canScheduleExactAlarms(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            alarmManager.canScheduleExactAlarms()
-        } else {
-            // On older versions, assume we can schedule exact alarms
-            true
+
+    fun resetTimer(duration: Long) {
+        _timerState.value = TimerState.STOPPED
+        _remainingTime.value = 0L
+        startTimer(duration)
+    }
+
+    fun pauseTimer() {
+        if (_timerState.value == TimerState.RUNNING) {
+            _timerState.value = TimerState.PAUSED
         }
     }
+
+    fun resumeTimer(remainingTime: Long) {
+        if (_timerState.value == TimerState.PAUSED) {
+            _timerState.value = TimerState.RUNNING
+            _remainingTime.value = remainingTime
+            startTimer(remainingTime)
+        }
+    }
+
 }
 

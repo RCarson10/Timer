@@ -18,17 +18,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.personal.timer.ui.theme.viewModel.TimerState
 import com.personal.timer.ui.theme.viewModel.TimerViewModel
-import java.util.Timer
 
-// TODO: Update TimerScreen to accept TimerViewModel
 @Composable
 fun TimerScreen(timerViewModel: TimerViewModel) {
     var selectedTime by remember { mutableStateOf(Triple(0, 0, 0)) }
-    
-    // TODO: Collect timer state from ViewModel
+
     val timerState by timerViewModel.timerState.collectAsState()
     val remainingTime by timerViewModel.remainingTime.collectAsState()
+
     
     Column(
         modifier = Modifier
@@ -51,15 +50,12 @@ fun TimerScreen(timerViewModel: TimerViewModel) {
                 selectedTime = Triple(hours, minutes, seconds)
             }
         )
-
-        // TODO: Display timer state
         Text(
             text = "Timer State: ${timerState.name}",
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(top = 16.dp)
         )
-        
-        // TODO: Display remaining time
+
         if (remainingTime > 0) {
             val hours = remainingTime / (1000 * 60 * 60)
             val minutes = (remainingTime % (1000 * 60 * 60)) / (1000 * 60)
@@ -72,82 +68,71 @@ fun TimerScreen(timerViewModel: TimerViewModel) {
             )
         }
 
-        // TODO: Display selected time
         Text(
             text = "Selected: ${selectedTime.first}h ${selectedTime.second}m ${selectedTime.third}s",
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(top = 24.dp)
         )
 
-        // TODO: Add timer control buttons
         Row(
             modifier = Modifier.padding(top = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // TODO: Start timer button
             Button(
                 onClick = {
-                    // TODO: Convert selected time to milliseconds
                     val durationMs = (selectedTime.first * 60 * 60 * 1000L) +
                                    (selectedTime.second * 60 * 1000L) +
                                    (selectedTime.third * 1000L)
-                    
-                    // TODO: Start timer using ViewModel
                     timerViewModel.startTimer(durationMs)
                 },
-                enabled = timerState == TimerViewModel.TimerState.IDLE || 
-                         timerState == TimerViewModel.TimerState.STOPPED ||
-                         timerState == TimerViewModel.TimerState.COMPLETED
+                enabled = timerState ==TimerState.PAUSED ||
+                         timerState == TimerState.STOPPED ||
+                         timerState == TimerState.COMPLETED
             ) {
                 Text("Start Timer")
             }
             
-            // TODO: Stop timer button
             Button(
                 onClick = {
-                    // TODO: Stop timer using ViewModel
                     timerViewModel.stopTimer()
                 },
-                enabled = timerState == TimerViewModel.TimerState.RUNNING
+                enabled = timerState == TimerState.RUNNING
             ) {
                 Text("Stop Timer")
             }
-            
-            // TODO: Reset timer button
+
             Button(
                 onClick = {
-                    // TODO: Reset timer using ViewModel
-                    timerViewModel.resetTimer()
+                    timerViewModel.resetTimer(selectedTime.first * 60 * 60 * 1000L +
+                                              selectedTime.second * 60 * 1000L +
+                                              selectedTime.third * 1000L)
                 },
-                enabled = timerState != TimerViewModel.TimerState.IDLE
+                enabled = timerState != TimerState.PAUSED
             ) {
                 Text("Reset Timer")
             }
         }
-        
-        // TODO: Add pause/resume buttons (optional)
-        if (timerState == TimerViewModel.TimerState.RUNNING || 
-            timerState == TimerViewModel.TimerState.PAUSED) {
+
+        if (timerState == TimerState.RUNNING ||
+            timerState == TimerState.PAUSED) {
             Row(
                 modifier = Modifier.padding(top = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
                     onClick = {
-                        // TODO: Pause timer using ViewModel
                         timerViewModel.pauseTimer()
                     },
-                    enabled = timerState == TimerViewModel.TimerState.RUNNING
+                    enabled = timerState == TimerState.RUNNING
                 ) {
                     Text("Pause")
                 }
                 
                 Button(
                     onClick = {
-                        // TODO: Resume timer using ViewModel
-                        timerViewModel.resumeTimer()
+                        timerViewModel.resumeTimer(remainingTime)
                     },
-                    enabled = timerState == TimerViewModel.TimerState.PAUSED
+                    enabled = timerState == TimerState.PAUSED
                 ) {
                     Text("Resume")
                 }
