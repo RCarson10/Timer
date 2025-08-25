@@ -1,6 +1,7 @@
 package com.personal.timer.ui.theme.Screens
 
 import TimerPickerView
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.personal.timer.ui.theme.viewModel.TimerState
 import com.personal.timer.ui.theme.viewModel.TimerViewModel
@@ -24,11 +27,19 @@ import com.personal.timer.ui.theme.viewModel.TimerViewModel
 @Composable
 fun TimerScreen(timerViewModel: TimerViewModel) {
     var selectedTime by remember { mutableStateOf(Triple(0, 0, 0)) }
+    val context = LocalContext.current
 
     val timerState by timerViewModel.timerState.collectAsState()
     val remainingTime by timerViewModel.remainingTime.collectAsState()
+    val showToast by timerViewModel.showToast.collectAsState()
 
-    
+    LaunchedEffect(showToast) {
+        if (showToast) {
+            // Show your toast here
+            Toast.makeText(context, "Timer completed!", Toast.LENGTH_SHORT).show()
+            timerViewModel.onToastShown()
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -50,11 +61,6 @@ fun TimerScreen(timerViewModel: TimerViewModel) {
                 selectedTime = Triple(hours, minutes, seconds)
             }
         )
-        Text(
-            text = "Timer State: ${timerState.name}",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(top = 16.dp)
-        )
 
         if (remainingTime > 0) {
             val hours = remainingTime / (1000 * 60 * 60)
@@ -67,13 +73,6 @@ fun TimerScreen(timerViewModel: TimerViewModel) {
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
-
-        Text(
-            text = "Selected: ${selectedTime.first}h ${selectedTime.second}m ${selectedTime.third}s",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(top = 24.dp)
-        )
-
         Row(
             modifier = Modifier.padding(top = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -130,7 +129,7 @@ fun TimerScreen(timerViewModel: TimerViewModel) {
                 
                 Button(
                     onClick = {
-                        timerViewModel.resumeTimer(remainingTime)
+                        timerViewModel.resumeTimer()
                     },
                     enabled = timerState == TimerState.PAUSED
                 ) {

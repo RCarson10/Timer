@@ -32,7 +32,6 @@ import com.personal.timer.ui.theme.viewModel.ClockViewModel
 @Composable
 fun Clock(
     viewModel: ClockViewModel = ClockViewModel(),
-    onNavigateToTimer: () -> Unit = {}
 ) {
     val currentTime by viewModel.currentTime.collectAsStateWithLifecycle()
     val selectedTimeZone by viewModel.selectedTimeZone.collectAsStateWithLifecycle()
@@ -63,16 +62,6 @@ fun Clock(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-
-        // Navigation Button
-        Button(
-            onClick = onNavigateToTimer,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp)
-        ) {
-            Text("Go to Timer")
-        }
     }
 }
 
