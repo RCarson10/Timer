@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.personal.timer.ui.theme.viewModel.TimerState
 import com.personal.timer.ui.theme.viewModel.TimerViewModel
 
@@ -69,7 +70,9 @@ fun TimerScreen(timerViewModel: TimerViewModel) {
             
             Text(
                 text = "Remaining: ${hours}h ${minutes}m ${seconds}s",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 36.sp
+                ),
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
