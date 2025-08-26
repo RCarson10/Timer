@@ -20,7 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -41,7 +41,7 @@ fun TimerPickerView(
     initialSeconds: Int = 0,
     onTimeChanged: (hours: Int, minutes: Int, seconds: Int) -> Unit = { _, _, _ -> }
 ) {
-    val scope = rememberCoroutineScope()
+    rememberCoroutineScope()
 
     // State for each wheel
     val hoursState = rememberLazyListState(initialFirstVisibleItemIndex = initialHours)
@@ -49,9 +49,9 @@ fun TimerPickerView(
     val secondsState = rememberLazyListState(initialFirstVisibleItemIndex = initialSeconds)
 
     // Current selected values
-    var selectedHours by remember { mutableStateOf(initialHours) }
-    var selectedMinutes by remember { mutableStateOf(initialMinutes) }
-    var selectedSeconds by remember { mutableStateOf(initialSeconds) }
+    var selectedHours by remember { mutableIntStateOf(initialHours) }
+    var selectedMinutes by remember { mutableIntStateOf(initialMinutes) }
+    var selectedSeconds by remember { mutableIntStateOf(initialSeconds) }
 
     // Update selected values when scrolling stops
     LaunchedEffect(hoursState.isScrollInProgress) {
