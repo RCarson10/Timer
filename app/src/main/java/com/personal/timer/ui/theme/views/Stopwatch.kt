@@ -1,5 +1,6 @@
 package com.personal.timer.ui.theme.views
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,19 +39,39 @@ fun Stopwatch(viewModel: StopwatchViewModel) {
     {
         Text("Stopwatch", color = Color.White)
         Text(
-            text = stopwatchTime.toString(),
+            text = formatTime(stopwatchTime),
             style = MaterialTheme.typography.displayLarge,
             color = MaterialTheme.colorScheme.primary
         )
         Row {
-            Button(onClick = { /* Start stopwatch logic */ }) {
-                Text("Start")
+            Button(onClick = {
+                if (isRunning) viewModel.stopStopwatch()
+                else viewModel.startStopwatch()
+            }) {
+                if (isRunning) Text("Stop")
+                else Text("Start")
             }
-            Button(onClick = { /* Reset stopwatch logic */ }) {
-                Text("Lap")
+            Button(onClick = {
+                if (isRunning) viewModel.recordLap()
+                else viewModel.resetStopwatch()
+            },
+                enabled = isRunning || hasLaps
+            )
+            {
+                if (isRunning) Text("Lap")
+                else Text("Reset")
             }
         }
     }
+}
+
+@SuppressLint("DefaultLocale")
+private fun formatTime(timeInMillis: Long): String {
+    val minutes = ((timeInMillis % (1000 * 60 * 60)) / (1000 * 60)).toInt()
+    val seconds = ((timeInMillis % (1000 * 60)) / 1000).toInt()
+    val milliseconds = (timeInMillis % 1000).toInt() // Get full milliseconds
+
+    return String.format("%02d:%02d.%03d", minutes, seconds, milliseconds)
 }
 
 @Preview

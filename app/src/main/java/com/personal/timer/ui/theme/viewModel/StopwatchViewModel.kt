@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.personal.timer.data.LapTime
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,13 +21,20 @@ class StopwatchViewModel: ViewModel() {
         _isRunning.value = true
         viewModelScope.launch {
             while (_isRunning.value) {
-                kotlinx.coroutines.delay(1000)
-                _runningTime.value += 1000
+                delay(1)
+                _runningTime.value += 1
             }
         }
     }
     fun stopStopwatch() {
         _isRunning.value = false
+        laps.add(
+            LapTime(
+                laps.size + 1,
+                _runningTime.value,
+                if (laps.isEmpty()) _runningTime.value
+                else _runningTime.value - laps.last().time)
+        )
         viewModelScope.cancel()
     }
     fun resetStopwatch() {
@@ -39,8 +47,7 @@ class StopwatchViewModel: ViewModel() {
                 LapTime(
                 laps.size + 1,
                 _runningTime.value,
-                if (
-                    laps.isEmpty()) _runningTime.value
+                if (laps.isEmpty()) _runningTime.value
                 else _runningTime.value - laps.last().time)
             )
         }
