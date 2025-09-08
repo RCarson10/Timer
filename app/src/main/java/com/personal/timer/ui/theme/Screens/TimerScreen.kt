@@ -22,11 +22,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.personal.timer.ui.theme.viewModel.TimerState
 import com.personal.timer.ui.theme.viewModel.TimerViewModel
 
 @Composable
-fun TimerScreen(timerViewModel: TimerViewModel) {
+fun TimerScreen(timerViewModel: TimerViewModel = hiltViewModel()) {
     var selectedTime by remember { mutableStateOf(Triple(0, 0, 0)) }
     val context = LocalContext.current
 

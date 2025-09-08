@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -21,13 +20,10 @@ import com.personal.timer.ui.theme.Screens.ClockScreen
 import com.personal.timer.ui.theme.Screens.StopwatchScreen
 import com.personal.timer.ui.theme.Screens.TimerScreen
 import com.personal.timer.ui.theme.TimerTheme
-import com.personal.timer.ui.theme.viewModel.StopwatchViewModel
-import com.personal.timer.ui.theme.viewModel.TimerViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    private val timerViewModel: TimerViewModel by viewModels()
-    private val stopwatchViewModel: StopwatchViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,8 +65,8 @@ class MainActivity : ComponentActivity() {
                     ) {
                         when (currentScreen) {
                             0 -> ClockScreen()
-                            1 -> TimerScreen(timerViewModel = timerViewModel)
-                            2 -> StopwatchScreen(stopwatchViewModel)
+                            1 -> TimerScreen()
+                            2 -> StopwatchScreen()
                         }
                     }
                 }

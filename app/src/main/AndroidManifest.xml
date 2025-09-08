@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
+        android:name=".TimerApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -19,15 +20,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Timer"
         tools:targetApi="31">
-        
-        <!-- TODO: Register TimerReceiver -->
-        <receiver
-            android:name=".TimerReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.personal.timer.TIMER_COMPLETE" />
-            </intent-filter>
-        </receiver>
+
+
         
         <activity
             android:name=".MainActivity"
