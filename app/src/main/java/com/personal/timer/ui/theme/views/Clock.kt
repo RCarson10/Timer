@@ -25,17 +25,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.personal.timer.ui.theme.TimerTheme
-import com.personal.timer.ui.theme.viewModel.ClockViewModel
 
 @Composable
 fun Clock(
-    viewModel: ClockViewModel = ClockViewModel(),
+    currentTime: String,
+    selectedTimeZone: android.icu.util.TimeZone,
+    onTimeZoneSelected: (String) -> Unit
 ) {
-    val currentTime by viewModel.currentTime.collectAsStateWithLifecycle()
-    val selectedTimeZone by viewModel.selectedTimeZone.collectAsStateWithLifecycle()
-
     // UI layout for displaying the clock
     Column(
         modifier = Modifier.fillMaxSize()
@@ -58,7 +55,7 @@ fun Clock(
         )
         // Dropdown menu for selecting a time zone
         TimeZoneDropdown { timeZoneId ->
-            viewModel.updateTimeZone(timeZoneId) // Use the ViewModel's method to update time zone
+            onTimeZoneSelected(timeZoneId) // Call the passed callback
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -104,6 +101,8 @@ fun TimeZoneDropdown(onTimeZoneSelected: (String) -> Unit) {
 @Composable
 fun ClockPreview() {
     TimerTheme {
-        Clock()
+        Clock(currentTime = "10:45 AM",
+            selectedTimeZone = TimeZone.getDefault(),
+            onTimeZoneSelected = {})
     }
 }

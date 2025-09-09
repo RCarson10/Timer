@@ -9,5 +9,7 @@ import javax.inject.Singleton
 class TimerRepository @Inject constructor(
     private val apiService: ApiService
 ) {
-    suspend fun fetchData(param: String) = apiService.getData(param)
+    suspend fun getTime(timeZone: String = "America/Phoenix") = apiService.getTimeForTimezone(
+        timeZone
+    )
 }

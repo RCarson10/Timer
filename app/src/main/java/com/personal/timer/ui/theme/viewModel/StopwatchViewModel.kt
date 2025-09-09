@@ -3,14 +3,17 @@ package com.personal.timer.ui.theme.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.personal.timer.data.LapTime
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class StopwatchViewModel: ViewModel() {
+@HiltViewModel
+class StopwatchViewModel @Inject constructor(): ViewModel() {
     private val _runningTime = MutableStateFlow(0L)
     val runningTime: StateFlow<Long> = _runningTime.asStateFlow()
     private val _isRunning = MutableStateFlow(false)

@@ -2,13 +2,14 @@ package com.personal.timer.ui.theme.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 enum class TimerState {
     RUNNING,
@@ -17,7 +18,8 @@ enum class TimerState {
     COMPLETED
 }
 
-class TimerViewModel : ViewModel() {
+@HiltViewModel
+class TimerViewModel @Inject constructor() : ViewModel() {
     private val _timerState = MutableStateFlow(TimerState.STOPPED)
     private val _remainingTime = MutableStateFlow(0L)
     val timerState: StateFlow<TimerState> = _timerState.asStateFlow()
