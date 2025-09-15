@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,76 +68,151 @@ fun TimerScreen(timerViewModel: TimerViewModel = hiltViewModel()) {
         )
 
         if (remainingTime > 0) {
-            val hours = remainingTime / (1000 * 60 * 60)
-            val minutes = (remainingTime % (1000 * 60 * 60)) / (1000 * 60)
-            val seconds = (remainingTime % (1000 * 60)) / 1000
-            
-            Text(
-                text = "Remaining: ${hours}h ${minutes}m ${seconds}s",
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = 36.sp
-                ),
-                modifier = Modifier.padding(top = 8.dp)
+            TimerDisplay(
+                remainingTime = remainingTime,
+                state = timerState,
+                initialTime = (selectedTime.first * 60 * 60 * 1000L) +
+                             (selectedTime.second * 60 * 1000L) +
+                             (selectedTime.third * 1000L)
             )
         }
+        TimerControlButtons(
+            timerState = timerState,
+            selectedTime = selectedTime,
+            onStart = { durationMs ->
+                timerViewModel.startTimer(durationMs)
+            },
+            onStop = {
+                timerViewModel.stopTimer()
+            },
+            onReset = { durationMs ->
+                timerViewModel.resetTimer(durationMs)
+            },
+            onPause = {
+                timerViewModel.pauseTimer()
+            },
+            onResume = {
+                timerViewModel.resumeTimer()
+            }
+        )
+    }
+}
+
+@Composable
+fun TimerDisplay(
+    remainingTime: Long,
+    state: TimerState,
+    initialTime: Long
+) {
+    val hours = remainingTime / (1000 * 60 * 60)
+    val minutes = (remainingTime % (1000 * 60 * 60)) / (1000 * 60)
+    val seconds = (remainingTime % (1000 * 60)) / 1000
+    
+    val color = when (state) {
+        TimerState.RUNNING -> Color.Green
+        TimerState.PAUSED -> Color.Blue
+        TimerState.COMPLETED -> Color.Red
+        TimerState.STOPPED -> Color.Gray
+    }
+    
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(top = 8.dp)
+    ) {
+        // Progress bar
+        LinearProgressIndicator(
+            progress = { 
+                if (initialTime > 0) {
+                    (initialTime - remainingTime).toFloat() / initialTime.toFloat()
+                } else 0f
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        )
+        
+        // Timer display
+        Text(
+            text = "Remaining: ${hours}h ${minutes}m ${seconds}s",
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontSize = 36.sp
+            ),
+            color = color
+        )
+        
+        // State indicator
+        Text(
+            text = when (state) {
+                TimerState.RUNNING -> "Running"
+                TimerState.PAUSED -> "Paused"
+                TimerState.COMPLETED -> "Completed!"
+                TimerState.STOPPED -> "Stopped"
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            color = color
+        )
+    }
+}
+
+@Composable
+fun TimerControlButtons(
+    timerState: TimerState,
+    selectedTime: Triple<Int, Int, Int>,
+    onStart: (Long) -> Unit,
+    onStop: () -> Unit,
+    onReset: (Long) -> Unit,
+    onPause: () -> Unit,
+    onResume: () -> Unit
+) {
+    val durationMs = (selectedTime.first * 60 * 60 * 1000L) +
+                    (selectedTime.second * 60 * 1000L) +
+                    (selectedTime.third * 1000L)
+    
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(top = 16.dp)
+    ) {
+        // Main control buttons
         Row(
-            modifier = Modifier.padding(top = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Button(
-                onClick = {
-                    val durationMs = (selectedTime.first * 60 * 60 * 1000L) +
-                                   (selectedTime.second * 60 * 1000L) +
-                                   (selectedTime.third * 1000L)
-                    timerViewModel.startTimer(durationMs)
-                },
-                enabled = timerState ==TimerState.PAUSED ||
-                         timerState == TimerState.STOPPED ||
-                         timerState == TimerState.COMPLETED
+                onClick = { onStart(durationMs) },
+                enabled = timerState == TimerState.STOPPED || timerState == TimerState.COMPLETED
             ) {
-                Text("Start Timer")
+                Text("Start")
             }
             
             Button(
-                onClick = {
-                    timerViewModel.stopTimer()
-                },
-                enabled = timerState == TimerState.RUNNING
+                onClick = { onStop() },
+                enabled = timerState == TimerState.RUNNING || timerState == TimerState.PAUSED
             ) {
-                Text("Stop Timer")
+                Text("Stop")
             }
 
             Button(
-                onClick = {
-                    timerViewModel.resetTimer(selectedTime.first * 60 * 60 * 1000L +
-                                              selectedTime.second * 60 * 1000L +
-                                              selectedTime.third * 1000L)
-                },
-                enabled = timerState != TimerState.PAUSED
+                onClick = { onReset(durationMs) },
+                enabled = timerState != TimerState.STOPPED
             ) {
-                Text("Reset Timer")
+                Text("Reset")
             }
         }
-
-        if (timerState == TimerState.RUNNING ||
-            timerState == TimerState.PAUSED) {
+        
+        // Pause/Resume buttons (only show when timer is running or paused)
+        if (timerState == TimerState.RUNNING || timerState == TimerState.PAUSED) {
             Row(
                 modifier = Modifier.padding(top = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
-                    onClick = {
-                        timerViewModel.pauseTimer()
-                    },
+                    onClick = onPause,
                     enabled = timerState == TimerState.RUNNING
                 ) {
                     Text("Pause")
                 }
                 
                 Button(
-                    onClick = {
-                        timerViewModel.resumeTimer()
-                    },
+                    onClick = onResume,
                     enabled = timerState == TimerState.PAUSED
                 ) {
                     Text("Resume")

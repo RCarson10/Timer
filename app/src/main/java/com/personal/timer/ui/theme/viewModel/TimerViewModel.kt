@@ -70,13 +70,12 @@ class TimerViewModel @Inject constructor() : ViewModel() {
         if (_timerState.value == TimerState.RUNNING) {
             _timerState.value = TimerState.PAUSED
         }
-        remainingTime.value
+        timerJob?.cancel()
     }
 
     fun resumeTimer() {
         if (_timerState.value == TimerState.PAUSED) {
             _timerState.value = TimerState.RUNNING
-            startTimer(remainingTime.value)
         }
     }
 

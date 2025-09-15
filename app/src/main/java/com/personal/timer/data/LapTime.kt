@@ -2,6 +2,8 @@ package com.personal.timer.data
 
 data class LapTime(
     val lapNumber: Int,
-    val time: Long,
-    val splitTime: Long // time since previous lap
+    val time: Long, // This should match your current usage
+    val splitTime: Long
 )
+
+

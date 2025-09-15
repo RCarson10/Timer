@@ -3,12 +3,14 @@ package com.personal.timer.ui.theme.views
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,15 +20,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.personal.timer.data.LapTime
 import com.personal.timer.ui.theme.viewModel.StopwatchViewModel
 
 @Composable
 fun Stopwatch(viewModel: StopwatchViewModel) {
-
     val stopwatchTime by viewModel.runningTime.collectAsState()
     val isRunning by viewModel.isRunning.collectAsState()
-    val hasLaps = viewModel.laps.isNotEmpty()
+    val laps by viewModel.laps.collectAsState()
+    val hasLaps = laps.isNotEmpty()
 
     Column(
         modifier = Modifier
@@ -35,32 +38,28 @@ fun Stopwatch(viewModel: StopwatchViewModel) {
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
-    )
-    {
+    ) {
         Text("Stopwatch", color = Color.White)
-        Text(
-            text = formatTime(stopwatchTime),
-            style = MaterialTheme.typography.displayLarge,
-            color = MaterialTheme.colorScheme.primary
+        
+        // Enhanced timer display
+        StopwatchDisplay(
+            time = stopwatchTime,
+            isRunning = isRunning
         )
-        Row {
-            Button(onClick = {
-                if (isRunning) viewModel.stopStopwatch()
-                else viewModel.startStopwatch()
-            }) {
-                if (isRunning) Text("Stop")
-                else Text("Start")
-            }
-            Button(onClick = {
-                if (isRunning) viewModel.recordLap()
-                else viewModel.resetStopwatch()
-            },
-                enabled = isRunning || hasLaps
-            )
-            {
-                if (isRunning) Text("Lap")
-                else Text("Reset")
-            }
+        
+        // Control buttons
+        StopwatchControlButtons(
+            isRunning = isRunning,
+            hasLaps = hasLaps,
+            onStart = { viewModel.startStopwatch() },
+            onStop = { viewModel.stopStopwatch() },
+            onLap = { viewModel.recordLap() },
+            onReset = { viewModel.resetStopwatch() }
+        )
+
+        // Enhanced laps display
+        if (hasLaps) {
+            LapsDisplay(laps = laps)
         }
     }
 }
@@ -74,8 +73,96 @@ private fun formatTime(timeInMillis: Long): String {
     return String.format("%02d:%02d.%03d", minutes, seconds, milliseconds)
 }
 
-@Preview
 @Composable
-fun StopwatchPreview() {
-    Stopwatch(viewModel = StopwatchViewModel())
+fun StopwatchDisplay(
+    time: Long,
+    isRunning: Boolean
+) {
+    val color = if (isRunning) Color.Green else Color.White
+    
+    Text(
+        text = formatTime(time),
+        style = MaterialTheme.typography.displayLarge,
+        color = color
+    )
+}
+
+@Composable
+fun StopwatchControlButtons(
+    isRunning: Boolean,
+    hasLaps: Boolean,
+    onStart: () -> Unit,
+    onStop: () -> Unit,
+    onLap: () -> Unit,
+    onReset: () -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Button(
+            onClick = {
+                if (isRunning) onStop() else onStart()
+            }
+        ) {
+            Text(if (isRunning) "Stop" else "Start")
+        }
+        
+        Button(
+            onClick = {
+                if (isRunning) onLap() else onReset()
+            },
+            enabled = isRunning || hasLaps
+        ) {
+            Text(if (isRunning) "Lap" else "Reset")
+        }
+    }
+}
+
+@Composable
+fun LapsDisplay(laps: List<LapTime>) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Laps:",
+            color = Color.White,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+        ) {
+            items(laps) { lap ->
+                LapItem(lap = lap)
+            }
+        }
+    }
+}
+
+@Composable
+fun LapItem(lap: LapTime) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = "Lap ${lap.lapNumber}",
+            color = Color.White
+        )
+        Text(
+            text = "Split: ${formatTime(lap.splitTime)}",
+            color = Color.White
+        )
+        Text(
+            text = "Total: ${formatTime(lap.time)}",
+            color = Color.White
+        )
+    }
 }
